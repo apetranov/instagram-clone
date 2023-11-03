@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Clone: {% block title %}{% endblock %}</title>
+    <link rel="icon" href="../static/images/black-logo.png" type="image/png">  
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body> <!-- Added a background color for clarity -->
+    <nav class="flex justify-between items-center px-8 py-4 bg-white">
+        <div class="flex items-center">
+            <a href="/">
+                <img class="max-w-xs" src="{{ url_for('static', filename='images/logo.png') }}" alt="instagram logo">
+            </a>
+        </div>
+        {% if not session["username"] %}
+        <ul class="text-lg flex space-x-2 items-center">
+            <li class="list-none inline-block px-2">
+                <a href="{{ url_for('login') }}" class="rounded-full px-4 py-2 hover:bg-black text-black hover:text-white">Log In</a>
+            </li>
+            <li class="list-none inline-block px-2">
+                <a href="{{ url_for('register') }}" class="rounded-full px-4 py-2 hover:bg-black text-black hover:text-white">Register</a>
+            </li>
+        </ul>        
+        {% endif %}
+    </nav>
+    <main>
+        {% block main %}
+        {% endblock %}
+    </main>
+</body>
+</html>

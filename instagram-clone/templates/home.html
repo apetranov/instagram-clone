@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Home 
+{% endblock %}
+
+{% block main %}
+    Welcome, {{ session["username"] }}
+    <br>
+    <a href="/logout">Log Out</a>
+{% endblock %}
