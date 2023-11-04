@@ -5,7 +5,6 @@
 {% endblock %}
 
 {% block main %}
-    
     <div class="container min-h-screen flex flex-col items-center justify-center bg-gray-500 ">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -13,13 +12,28 @@
                     <div id="alert" class=" flex items-center rounded-lg bg-white text-black p-3 text-center fade-out {{ 'hidden' if not messages }} m-20">
                         <img src="../static/images/check.png" class="mx-auto max-w-xs filter brightness-125" alt="checkmark">
                         <p class="text-lg">{{ message }}</p>
-                    </div>
+                    </div> 
+                    <script>
+                        // JavaScript code that interacts with the "alert" element goes here
+                        setTimeout(function() {
+                            const alertDiv = document.getElementById('alert');
+
+                            // Add a class to initiate the fade-out animation
+                            alertDiv.classList.add('opacity-0');
+
+                            // Remove the div after the animation is complete (adjust the duration)
+                            setTimeout(function() {
+                                alertDiv.remove();
+                            }, 500); // Adjust the time to match the animation duration (in this example, 500ms)
+
+                        }, 3000);
+                    </script>
                 {% endfor %}
             {% endif %}
         {% endwith %}
         <div class="max-w-md w-full p-4 bg-white shadow-lg rounded-lg">
             <h2 class="text-2xl font-semibold mb-4">Log In</h2>
-            <form id="registration-form" autocomplete="off" action="/login" method="post">
+            <form id="login-form" autocomplete="off" action="/login" method="post">
                 <div class="mb-4">
                     <label for="username" class="block text-gray-600">Username</label>
                     <input type="text" id="username" name="username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring focus:ring-blue-200">
@@ -32,64 +46,51 @@
                     <p class="text-red-500 hidden" id="password-error">Password is required.</p>
                 </div>
                 <p class="my-4"><a href="{{ url_for('change_password') }}" class="text-blue-500 font-semibold no-underline">Forgot your password?</a></p>
-    
+                <p class="my-4">Don't have an account? <a class="text-blue-500 font-semibold no-underline" href="{{ url_for('register') }}">Register</a></p>
                 <button type="submit" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">Log In</button>
             </form>
         </div>
     </div>
 
 <script>
-    document.getElementById('registration-form').addEventListener('submit', function (e) {
-        let username = document.getElementById('username');
-        let password = document.getElementById('password');
-        // let confirm_password = document.getElementById('confirm_password');
-        let username_error = document.getElementById('username-error');
-        let password_error = document.getElementById('password-error');
-        // let confirm_password_error = document.getElementById('confirm-password-error');
-        let hasError = false;
+    document.addEventListener("DOMContentLoaded", function() {
+    // Your code here
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            let username = document.getElementById('username');
+            let password = document.getElementById('password');
+            // let confirm_password = document.getElementById('confirm_password');
+            let username_error = document.getElementById('username-error');
+            let password_error = document.getElementById('password-error');
+            // let confirm_password_error = document.getElementById('confirm-password-error');
+            let hasError = false;
 
-        if (username.value === '') {
-            username_error.classList.remove('hidden');
-            hasError = true;
-        } else {
-            username_error.classList.add('hidden');
-        }
+            if (username.value === '') {
+                username_error.classList.remove('hidden');
+                hasError = true;
+            } else {
+                username_error.classList.add('hidden');
+            }
 
-        if (password.value === '') {
-            password_error.classList.remove('hidden');
-            hasError = true;
-        } else {
-            password_error.classList.add('hidden');
-        }
+            if (password.value === '') {
+                password_error.classList.remove('hidden');
+                hasError = true;
+            } else {
+                password_error.classList.add('hidden');
+            }
 
-        // if (confirm_password.value === '') {
-        //     confirm_password_error.classList.remove('hidden');
-        //     hasError = true;
-        // } else {
-        //     confirm_password_error.classList.add('hidden');
-        // }
+            // if (confirm_password.value === '') {
+            //     confirm_password_error.classList.remove('hidden');
+            //     hasError = true;
+            // } else {
+            //     confirm_password_error.classList.add('hidden');
+            // }
 
-        if (hasError) {
-            e.preventDefault(); // Prevent form submission if there are errors
-        }
+            if (hasError) {
+                e.preventDefault(); // Prevent form submission if there are errors
+            }
+        });
     });
-
-    setTimeout(function() {
-        const alertDiv = document.getElementById('alert');
-
-        // Add a class to initiate the fade-out animation
-        alertDiv.classList.add('opacity-0');
-
-        // Remove the div after the animation is complete (adjust the duration)
-        setTimeout(function() {
-            alertDiv.remove();
-        }, 500); // Adjust the time to match the animation duration (in this example, 500ms)
-        
-        // Add a class to reset the margin after the div is removed
-        setTimeout(function() {
-            alertDiv.classList.remove('m-20');
-        }, 550); // Adjust the time to be slightly after the div is removed
-    }, 3000);
+    
 
 </script>
 {% endblock %}

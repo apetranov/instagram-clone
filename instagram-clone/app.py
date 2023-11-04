@@ -4,6 +4,7 @@ from flask import Flask, current_app, flash, redirect, render_template, request,
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_required, LoginManager, UserMixin, login_user, logout_user, current_user
+from user_module import User
 
 app = Flask(__name__)
 app.logger.setLevel(logging.DEBUG)  # Set the desired log level
@@ -19,27 +20,26 @@ Session(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
-class User(UserMixin):
-    def __init__(self, id, username):
-        self.id = id
-        self.username = username
-
 @login_manager.user_loader
-def load_user(username):
-    # Load the user from your SQLite database based on username
-    query = "SELECT * FROM users WHERE username = :username"
-    user_data = db.execute(query, username=username).fetchone()
+def load_user(user_id):
+    # Convert the user_id to an integer (assuming it's an integer) if necessary
+    user_id = int(user_id)
+
+    # Load the user from your SQLite database based on user_id
+    user_data = db.execute("SELECT * FROM users WHERE id = ?", user_id)
 
     if user_data:
+        user_data = user_data[0]
         user = User(user_data["id"], user_data["username"])
         return user
-
+    
+    print("User not found for user_id:", user_id)
     return None  # Return None if the user is not found
 
 
 @app.route("/")
 def index():
-    if session.get("username") is None:
+    if not current_user.is_authenticated:
         return redirect("/login")
     return render_template("home.html")
 
@@ -47,9 +47,7 @@ def index():
 @app.route("/home")
 @login_required
 def home():
-    if session.get("username") is None:
-        return redirect("/login")
-    return redirect('/')
+    return render_template("home.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -61,7 +59,7 @@ def register():
         if password != confirmation:
             return render_template("password_error.html")
         
-        existing_user = db.execute("SELECT * FROM users WHERE username = ?", username)
+        existing_user = db.execute("SELECT * FROM users WHERE username = (?)", username)
         if existing_user:
             return render_template("username_unavailable.html")
         
@@ -79,15 +77,26 @@ def register():
 def login():
 
     if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-        rows = db.execute("SELECT * FROM users WHERE username = ?", request.form.get("username"))
+        # Retrieve the user from the database based on the provided username
+        user_data = db.execute("SELECT * FROM users WHERE username = (?)", username)
+        if user_data and check_password_hash(user_data[0]["password"], password):
+            # Create a User object based on the user data
+            user = User(user_data[0]["id"], user_data[0]["username"])
+            session["username"] = user_data[0]["username"]
 
-        if len(rows) != 1 or not check_password_hash(rows[0]["password"], request.form.get("password")):
+            # Authenticate the user using Flask-Login
+            login_user(user)
+
+            print("User authenticated:", username) 
+
+            # Redirect to the desired page after successful login (e.g., home)
+            return redirect("/home")
+        else:
+            print("User authentication failed:", username)
             return render_template("user_error.html")
-
-        session["username"] = request.form.get("username")
-
-        return redirect("/")
     
     return render_template("login.html", messages=get_flashed_messages())
 
@@ -95,9 +104,8 @@ def login():
 @app.route("/logout")
 def logout():
     """Log user out"""
-    session["username"] = None
-
-    return redirect("/login")
+    session.clear()
+    return redirect("/")
 
 @app.route("/change_password", methods=["GET", "POST"])
 def change_password():
@@ -106,10 +114,10 @@ def change_password():
         password = request.form.get("password")
         confirmation = request.form.get("confirm_password")
 
-        rows = db.execute("SELECT * FROM users WHERE username = ?", username)
+        rows = db.execute("SELECT * FROM users WHERE username = (?)", username)
         if len(rows) != 1:
             return render_template("no_such_user.html")
-        elif password != confirmation:
+        if password != confirmation:
             return render_template("password_error.html")
         
         new_password = generate_password_hash(password)
@@ -121,3 +129,13 @@ def change_password():
         return redirect("/")
 
     return render_template("forgotten_password.html")
+
+@app.route("/profile")
+@login_required
+def profile():
+    return render_template("profile.html")
+
+@app.route("/messages")
+@login_required
+def messages():
+    return render_template("messages.html")

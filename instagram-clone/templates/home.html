@@ -5,7 +5,25 @@
 {% endblock %}
 
 {% block main %}
-    Welcome, {{ session["username"] }}
-    <br>
-    <a href="/logout">Log Out</a>
+<nav class="w-64 bg-white h-screen fixed top-0 left-0 flex flex-col items-center p-4 shadow-md">
+    <a href="/home" class="text-black mb-4">
+      <img src="../static/images/logo.png" alt="ig logo" class="max-w-full h-auto" />
+    </a>
+    <a href="/home" class="text-black flex items-center hover:bg-gray-200 px-4 py-2 rounded">
+      <img src="../static/images/home.png" alt="home icon" class="w-6 h-6 mr-2" />
+      Home
+    </a>
+    <a href="/profile" class="text-black flex items-center mt-2 hover:bg-gray-200 px-4 py-2 rounded">
+      <img src="../static/images/account_circle.png" alt="account circle icon" class="w-6 h-6 mr-2" />
+      Profile
+    </a>
+    <a href="/messages" class="text-black flex items-center mt-2 hover:bg-gray-200 px-4 py-2 rounded">
+      <img src="../static/images/messages.png" alt="messages icon" class="w-6 h-6 mr-2" />
+      Messages
+    </a>
+    <a href="/logout" class="text-black flex items-center mt-2 hover:bg-gray-200 px-4 py-2 rounded">
+      <img src="../static/images/logout.png" alt="logout icon" class="w-6 h-6 mr-2" />
+      Log Out
+    </a>
+  </nav>  
 {% endblock %}

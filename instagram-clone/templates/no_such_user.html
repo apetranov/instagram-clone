@@ -5,5 +5,13 @@
 {% endblock %}
 
 {% block main %}
-    <img class="mx-auto block border img-fluid" src="../static/images/no_such_user.jpg" alt="angry cat no such user error">
+<div class="flex justify-center items-center h-screen bg-gray-200">
+    <div class="bg-white p-8 rounded-lg shadow-lg">
+      <img class="mx-auto block border img-fluid" src="../static/images/no_such_user.jpg" alt="angry cat no such user error" />
+      <div class="mt-4 flex justify-center space-x-4">
+        <a href="/login" class="px-4 py-2 bg-white text-black rounded hover:bg-black hover:text-white">Login</a>
+        <a href="/register" class="px-4 py-2 bg-white text-black rounded hover:bg-black hover:text-white">Register</a>
+      </div>
+    </div>
+</div>
 {% endblock %}
