@@ -5,7 +5,18 @@
 {% endblock %}
 
 {% block main %}
-    <div class="container min-h-screen flex flex-col items-center justify-center bg-gray-500">
+    
+    <div class="container min-h-screen flex flex-col items-center justify-center bg-gray-500 ">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div id="alert" class=" flex items-center rounded-lg bg-white text-black p-3 text-center fade-out {{ 'hidden' if not messages }} m-20">
+                        <img src="../static/images/check.png" class="mx-auto max-w-xs filter brightness-125" alt="checkmark">
+                        <p class="text-lg">{{ message }}</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <div class="max-w-md w-full p-4 bg-white shadow-lg rounded-lg">
             <h2 class="text-2xl font-semibold mb-4">Log In</h2>
             <form id="registration-form" autocomplete="off" action="/login" method="post">
@@ -62,5 +73,23 @@
             e.preventDefault(); // Prevent form submission if there are errors
         }
     });
+
+    setTimeout(function() {
+        const alertDiv = document.getElementById('alert');
+
+        // Add a class to initiate the fade-out animation
+        alertDiv.classList.add('opacity-0');
+
+        // Remove the div after the animation is complete (adjust the duration)
+        setTimeout(function() {
+            alertDiv.remove();
+        }, 500); // Adjust the time to match the animation duration (in this example, 500ms)
+        
+        // Add a class to reset the margin after the div is removed
+        setTimeout(function() {
+            alertDiv.classList.remove('m-20');
+        }, 550); // Adjust the time to be slightly after the div is removed
+    }, 3000);
+
 </script>
 {% endblock %}

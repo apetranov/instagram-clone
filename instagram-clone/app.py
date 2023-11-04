@@ -1,6 +1,6 @@
 from cs50 import SQL
 import logging
-from flask import Flask, current_app, flash, redirect, render_template, request, session, url_for
+from flask import Flask, current_app, flash, redirect, render_template, request, session, url_for, get_flashed_messages
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_required, LoginManager, UserMixin, login_user, logout_user, current_user
@@ -11,9 +11,9 @@ app.logger.setLevel(logging.DEBUG)  # Set the desired log level
 
 db = SQL("sqlite:///instagram.db")
 
-app.config['SESSION_PERMANENT'] = False
 app.config['SECRET_KEY'] = 'in05st05agr20am23'
 app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_PERMANENT'] = False
 Session(app)
 
 login_manager = LoginManager(app)
@@ -69,6 +69,8 @@ def register():
         
         db.execute("INSERT INTO users (username, password) VALUES (?, ?)", username, password)
 
+        flash("Registered!")
+
         return redirect('/login')
 
     return render_template("register.html")
@@ -87,7 +89,7 @@ def login():
 
         return redirect("/")
     
-    return render_template("login.html")
+    return render_template("login.html", messages=get_flashed_messages())
 
 
 @app.route("/logout")
@@ -113,6 +115,8 @@ def change_password():
         new_password = generate_password_hash(password)
 
         db.execute("UPDATE users SET password = (?) WHERE username = (?)", new_password, username)
+
+        flash("Password Changed!")
 
         return redirect("/")
 

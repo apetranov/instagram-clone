@@ -1,3 +1,3 @@
 # instagram-clone
 TODO
-Add logout functionality
+Add alerts
