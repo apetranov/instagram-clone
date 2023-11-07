@@ -5,25 +5,27 @@
 {% endblock %}
 
 {% block main %}
-<nav class="w-64 bg-white h-screen fixed top-0 left-0 flex flex-col items-center p-4 shadow-md">
-    <a href="/home" class="text-black mb-4">
-      <img src="../static/images/logo.png" alt="ig logo" class="max-w-full h-auto" />
-    </a>
-    <a href="/home" class="text-black flex items-center hover:bg-gray-200 px-4 py-2 rounded">
-      <img src="../static/images/home.png" alt="home icon" class="w-6 h-6 mr-2" />
-      Home
-    </a>
-    <a href="/profile" class="text-black flex items-center mt-2 hover:bg-gray-200 px-4 py-2 rounded">
-      <img src="../static/images/account_circle.png" alt="account circle icon" class="w-6 h-6 mr-2" />
-      Profile
-    </a>
-    <a href="/messages" class="text-black flex items-center mt-2 hover:bg-gray-200 px-4 py-2 rounded">
-      <img src="../static/images/messages.png" alt="messages icon" class="w-6 h-6 mr-2" />
-      Messages
-    </a>
-    <a href="/logout" class="text-black flex items-center mt-2 hover:bg-gray-200 px-4 py-2 rounded">
-      <img src="../static/images/logout.png" alt="logout icon" class="w-6 h-6 mr-2" />
-      Log Out
-    </a>
-  </nav>  
+<div class="w-full max-w-3xl mx-auto">
+  <div class="flex justify-center items-center">
+    <div class="w-full max-w-lg" id="post-container">
+      <ul class="space-y-4">
+        {% for post in posts %}
+          <p class="m-3"><strong>Uploaded by:</strong> <a href="{{ url_for('user_profile', username=post['username']) }}">{{ post['username'] }}</a></p>
+          <li class="bg-white shadow-md p-4 text-center">
+            {{ post['content'] }}
+            {% if post['image_path'] %}
+              <img style="max-width: 100%;" src="{{ post['image_path'] }}" alt="Post Image" class="mt-4 mx-auto">
+            {% endif %}
+            {% if session["username"] == post['username'] %}
+              <form class="m-3" method="post" action="/delete_post">
+                <input type="hidden" name="post_id" value="{{ post['id'] }}">
+                <button type="submit" class="bg-red-500 text-white p-2 rounded">Delete Post</button>
+              </form>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
 {% endblock %}

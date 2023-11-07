@@ -3,19 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Clone: {% block title %}{% endblock %}</title>
+    <title>Create Post</title>
     <link rel="icon" href="id="main-container"../static/images/black-logo.png" type="image/png">  
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .fade-out {
-          transition: opacity 0.5s ease-in-out;
-        }
-    </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-    <script src="{{ url_for('static', filename='chat.js') }}"></script>
 </head>
-<body> <!-- Added a background color for clarity -->
-    {% if session["username"] %}
+<body>
     <nav class="w-64 bg-white h-screen fixed top-0 left-0 flex flex-col items-center p-4 shadow-md">
         <a href="/home" class="font-extrabold text-black mb-4">
           Instagram Clone
@@ -40,12 +32,18 @@
           <img src="../static/images/add.png" alt="add icon" class="w-6 h-6 mr-2" />
           Create Post
         </a>
-      </nav> 
-    {% endif %}
- 
-    <main id="post-container">
-        {% block main %}
-        {% endblock %}
-    </main>
+      </nav>
+    <div class="flex justify-center items-center h-screen">
+        <form class="w-full max-w-lg bg-white p-4 shadow-md" method="post" action="/create_post" enctype="multipart/form-data">
+            <label for="content" class="block mb-2">Post Content:</label>
+            <textarea id="content" name="content" rows="4" cols="50" class="w-full p-2 border rounded mb-4"></textarea>
+            
+            <label for="image" class="block mb-2">Image URL:</label>
+            <input type="text" id="image" name="image" class="w-full p-2 border rounded mb-4">
+            
+            <input type="submit" value="Create Post" class="w-full p-2 bg-blue-500 text-white rounded cursor-pointer">
+        </form>
+    </div>
 </body>
 </html>
+

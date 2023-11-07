@@ -5,5 +5,20 @@
 {% endblock %}
 
 {% block main %}
-    {{ session["username"] }}
+<div class="flex justify-center items-center h-screen">
+    <div class="bg-white p-4 rounded-lg shadow-md">
+        <div id="chat-window" class="w-96 mx-auto h-72"> <!-- Adjust width and height here -->
+            <div id="messages" class="h-48 overflow-y-auto">
+                <!-- Messages will be displayed here -->
+            </div>
+            <div class="mt-2">
+                <input type="text" id="message-input" placeholder="Type your message..."
+                       class="w-full px-2 py-1 rounded border focus:outline-none focus:ring focus:border-blue-300">
+                <button id="send-button" class="mt-2 bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    Send
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

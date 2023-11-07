@@ -10,19 +10,23 @@
       <div class="w-full max-w-lg" id="post-container">
         <ul class="space-y-4">
           {% for post in posts %}
-            {% if session["username"] == post['username'] %}
+          {% for user in users %}
+            {% if user['id'] == post['user_id']  %}
                 <p class="m-3"><strong>Uploaded by:</strong> {{ post['username'] }}</p>
                 <li class="bg-white shadow-md p-4 text-center">
                 {{ post['content'] }}
                 {% if post['image_path'] %}
                     <img style="max-width: 100%;" src="{{ post['image_path'] }}" alt="Post Image" class="mt-4 mx-auto">
                 {% endif %}
+                {% if post['username'] == session["username"] %}
                     <form class="m-3" method="post" action="/delete_post">
-                    <input type="hidden" name="post_id" value="{{ post['id'] }}">
-                    <button type="submit" class="bg-red-500 text-white p-2 rounded">Delete Post</button>
+                        <input type="hidden" name="post_id" value="{{ post['id'] }}">
+                        <button type="submit" class="bg-red-500 text-white p-2 rounded">Delete Post</button>
                     </form> 
+                {% endif %}
                 </li>
             {% endif %}
+            {% endfor %}
           {% endfor %}
         </ul>
       </div>

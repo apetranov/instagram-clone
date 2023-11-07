@@ -1,16 +1,23 @@
 from cs50 import SQL
+from flask_socketio import SocketIO
 import logging
 from flask import Flask, current_app, flash, redirect, render_template, request, session, url_for, get_flashed_messages
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_login import login_required, LoginManager, UserMixin, login_user, logout_user, current_user
 from user_module import User
+from werkzeug.utils import secure_filename
+import os
 
 app = Flask(__name__)
-app.logger.setLevel(logging.DEBUG)  # Set the desired log level
+app.config['UPLOAD_FOLDER'] = os.path.expanduser('~/images')
+app.logger.setLevel(logging.DEBUG)  # Set the desired log levels
 
 
 db = SQL("sqlite:///instagram.db")
+socketio = SocketIO(app)
+
+db.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT)")
 
 app.config['SECRET_KEY'] = 'in05st05agr20am23'
 app.config['SESSION_TYPE'] = 'filesystem'
@@ -20,13 +27,33 @@ Session(app)
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
+# @socketio.on('join_chat')
+# def join_chat(data):
+#     sender_id = data['sender_id']
+#     receiver_id = data['receiver_id']
+#     chat_room = f"{sender_id}_{receiver_id}"
+
+#     socketio.join_room(chat_room)
+
+# @socketio.on('send_message')
+# def handle_message(data):
+#     sender_id = data['sender_id']
+#     receiver_id = data['receiver_id']
+#     content = data['content']
+#     chat_room = f"{sender_id}_{receiver_id}"
+
+#     db.execute("INSERT INTO messages (sender_id, receiver_id, content) VALUES (?, ?, ?)", sender_id, receiver_id, content)
+    
+#     socketio.emit('message', data, room=chat_room)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     # Convert the user_id to an integer (assuming it's an integer) if necessary
     user_id = int(user_id)
 
     # Load the user from your SQLite database based on user_id
-    user_data = db.execute("SELECT * FROM users WHERE id = ?", user_id)
+    user_data = db.execute("SELECT * FROM users WHERE id = (?)", user_id)
 
     if user_data:
         user_data = user_data[0]
@@ -43,11 +70,43 @@ def index():
         return redirect("/login")
     return render_template("home.html")
 
+@app.route('/create_post', methods=['GET', 'POST'])
+def create_post():
+    if request.method == 'POST':
+        user_id = db.execute("SELECT id FROM users WHERE username = (?)", session["username"])
+        if user_id: 
+            user_id = int(user_id[0]["id"])
+        content = request.form.get('content')
+        image_path = request.form.get("image")
+        
+        if user_id:
+            db.execute("INSERT INTO post (user_id, content, image_path) VALUES (?, ?, ?)", user_id, content, image_path)
+        return redirect(url_for('home'))
+    return render_template('create_post.html')
 
 @app.route("/home")
 @login_required
 def home():
-    return render_template("home.html")
+    posts = db.execute("SELECT * FROM post")
+    posts_info = []
+    for post in posts:
+        id = post["id"]
+        user_id = post["user_id"]
+        content = post["content"]
+        image_path = post["image_path"]
+        username = db.execute("SELECT username FROM users WHERE id = (?)", user_id)
+        if username:
+            username = username[0]["username"]
+
+        if username:    
+            post_info = {"id": id, "user_id": user_id, "content": content, "image_path": image_path, "username": username}
+        else:
+            post_info = {"id": id, "user_id": user_id, "content": content, "image_path": image_path}
+        
+        posts_info.append(post_info)
+
+    
+    return render_template("home.html", posts=posts_info)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -133,9 +192,73 @@ def change_password():
 @app.route("/profile")
 @login_required
 def profile():
-    return render_template("profile.html")
+    posts = db.execute("SELECT * FROM post")
+    posts_info = []
+    for post in posts:
+        id = post["id"]
+        user_id = post["user_id"]
+        content = post["content"]
+        image_path = post["image_path"]
+        username = db.execute("SELECT username FROM users WHERE id = (?)", user_id)
+        if username:
+            username = username[0]["username"]
+
+        if username:    
+            post_info = {"id": id, "user_id": user_id, "content": content, "image_path": image_path, "username": username}
+        else:
+            post_info = {"id": id, "user_id": user_id, "content": content, "image_path": image_path}
+        
+        posts_info.append(post_info)
+
+    return render_template("profile.html", posts = posts_info)
 
 @app.route("/messages")
 @login_required
 def messages():
     return render_template("messages.html")
+
+@app.route("/delete_post", methods=["GET", "POST"])
+@login_required
+def delete_post():
+    post_id = int(request.form.get('post_id'))
+    db.execute("DELETE FROM post WHERE id = (?)", post_id)
+    return redirect(url_for('home'))
+
+
+@app.route("/user/<username>")
+def user_profile(username):
+    user_info = db.execute("SELECT * FROM users WHERE username = ?", username)
+    user_id = db.execute("SELECT id FROM users WHERE username = (?)", username)
+    user_id = int(user_id[0]["id"])
+    users = db.execute("SELECT * FROM users WHERE id = (?)", user_id)
+
+    if user_info:
+        # Render the user profile template and pass the user-specific data
+        posts = db.execute("SELECT * FROM post")
+        posts_info = []
+        for post in posts:
+            id = post["id"]
+            user_id = post["user_id"]
+            content = post["content"]
+            image_path = post["image_path"]
+            username = db.execute("SELECT username FROM users WHERE id = (?)", user_id)
+            if username:
+                username = username[0]["username"]
+
+            if username:    
+                post_info = {"id": id, "user_id": user_id, "content": content, "image_path": image_path, "username": username}
+            else:
+                post_info = {"id": id, "user_id": user_id, "content": content, "image_path": image_path}
+            
+            posts_info.append(post_info)
+
+        users_info = []
+        for user in users:
+            id = user["id"]
+            user_info = {"id": id}
+            users_info.append(user_info)
+
+        return render_template("user_profile.html", posts=posts_info, users=users_info)
+    else:
+        # Handle the case where the username doesn't exist
+        return render_template("user_not_found.html")
