@@ -1,5 +1,5 @@
 from cs50 import SQL
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, send
 import logging
 from flask import Flask, current_app, flash, redirect, render_template, request, session, url_for, get_flashed_messages
 from flask_session import Session
