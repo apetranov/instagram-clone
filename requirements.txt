@@ -1,5 +1,5 @@
-pip install flask
-pip install cs50
-pip install flask_session
-pip install Flask-login
-pip install Flask-SocketIO
+flask
+cs50
+flask_session
+Flask-Login
+Flask-SocketIO
